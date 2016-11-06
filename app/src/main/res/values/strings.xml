@@ -1,3 +1,11 @@
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name">Popular Movies</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="movie_details_activity_label">Movie Details</string>
+    <string name="network_error">Network error: <xliff:g id="errorMessage">%1$s</xliff:g></string>
+    <string name="vote_average" translatable="false">%1$1.2f/10</string>
+    <string name="pref_top_rated_name">Top rated movies</string>
+    <string name="pref_popular_name">Popular movies</string>
+    <string name="pref_sort">Sort movies</string>
+    <string name="action_settings">Settings</string>
 </resources>

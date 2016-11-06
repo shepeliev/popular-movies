@@ -3,6 +3,6 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:name="com.shepeliev.popularmovies.MovieListFragment"
-        tools:context="com.shepeliev.popularmovies.MainActivity"
-        tools:layout="@layout/fragment_list_movies" />
+        android:name="com.shepeliev.popularmovies.MovieDetailsFragment"
+        tools:context="com.shepeliev.popularmovies.MovieDetailsActivity"
+        tools:layout="@layout/fragment_movie_details" />
