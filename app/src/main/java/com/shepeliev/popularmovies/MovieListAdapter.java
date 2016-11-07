@@ -31,7 +31,11 @@ public class MovieListAdapter extends ArrayAdapter<Movie> {
 
     Movie item = getItem(position);
     if (item != null && item.getPosterPath() != null) {
-      Picasso.with(getContext()).load(MovieDb.IMAGE_BASE_URL + item.getPosterPath()).into(itemView);
+      Picasso
+          .with(getContext())
+          .load(MovieDb.IMAGE_BASE_URL + item.getPosterPath())
+          .placeholder(R.drawable.poster_placeholder)
+          .into(itemView);
     }
 
     return itemView;
