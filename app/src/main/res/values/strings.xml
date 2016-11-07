@@ -5,7 +5,7 @@
     <string name="network_error">Network error: <xliff:g id="errorMessage">%1$s</xliff:g></string>
     <string name="vote_average" translatable="false">%1$1.2f/10</string>
     <string name="pref_top_rated_name">Top rated movies</string>
-    <string name="pref_popular_name">Popular movies</string>
-    <string name="pref_sort">Sort movies</string>
+    <string name="pref_popular_name">Most popular movies</string>
+    <string name="pref_sort">Sort by</string>
     <string name="action_settings">Settings</string>
 </resources>
