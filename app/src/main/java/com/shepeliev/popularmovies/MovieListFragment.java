@@ -6,23 +6,33 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.shepeliev.popularmovies.moviedb.Movie;
 import com.shepeliev.popularmovies.moviedb.MovieDb;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class MovieListFragment extends Fragment {
 
   private final MovieDb mMovieDb = new MovieDb();
-  private MovieListFragmentListener mListener;
-  private MovieListAdapter mMovieListAdapter;
+  private final MovieListAdapter mMovieListAdapter = new MovieListAdapter();
+
+  @BindView(R.id.movies_grid_view)
+  RecyclerView mMoviesRecyclerView;
+
+  private MovieListFragmentListener mMovieListFragmentListener;
+  private List<Movie> mMovies;
 
   @Nullable
   @Override
@@ -30,18 +40,11 @@ public class MovieListFragment extends Fragment {
                            @Nullable ViewGroup container,
                            @Nullable Bundle savedInstanceState) {
     View rootView = inflater.inflate(R.layout.fragment_list_movies, container, false);
+    ButterKnife.bind(this, rootView);
 
-    mMovieListAdapter = new MovieListAdapter(getActivity());
-    GridView moviesGrid = (GridView) rootView.findViewById(R.id.movies_grid_view);
-    moviesGrid.setAdapter(mMovieListAdapter);
-    moviesGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-      @Override
-      public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if (mListener != null) {
-          mListener.onMovieClick(mMovieListAdapter.getItem(position));
-        }
-      }
-    });
+    mMoviesRecyclerView.setAdapter(mMovieListAdapter);
+    mMoviesRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
+    mMoviesRecyclerView.setHasFixedSize(true);
 
     loadMovies();
 
@@ -57,10 +60,8 @@ public class MovieListFragment extends Fragment {
     mMovieDb.getMovies(sort, new MovieDb.AsyncCallback() {
       @Override
       public void onData(List<Movie> data) {
-        mMovieListAdapter.clear();
-        for (Movie movie : data) {
-          mMovieListAdapter.add(movie);
-        }
+        mMovies = data;
+        mMovieListAdapter.notifyDataSetChanged();
       }
 
       @Override
@@ -81,7 +82,7 @@ public class MovieListFragment extends Fragment {
   public void onAttach(Context context) {
     super.onAttach(context);
     if (context instanceof MovieListFragmentListener) {
-      mListener = (MovieListFragmentListener) context;
+      mMovieListFragmentListener = (MovieListFragmentListener) context;
     } else {
       throw new IllegalArgumentException("Context should implement " +
           MovieListFragmentListener.class.getSimpleName());
@@ -90,13 +91,57 @@ public class MovieListFragment extends Fragment {
 
   @Override
   public void onDetach() {
-    mListener = null;
+    mMovieListFragmentListener = null;
     super.onDetach();
   }
 
   public interface MovieListFragmentListener {
 
     void onMovieClick(Movie movie);
+  }
+
+  class MovieListAdapter extends RecyclerView.Adapter<ViewHolder> {
+
+    @Override
+    public MovieListFragment.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+      ImageView view = (ImageView) LayoutInflater
+          .from(parent.getContext())
+          .inflate(R.layout.movie_list_item, parent, false);
+      return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+      final Movie movie = mMovies.get(position);
+
+      holder.itemView.setOnClickListener(new View.OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+          if (mMovieListFragmentListener != null) {
+            mMovieListFragmentListener.onMovieClick(movie);
+          }
+        }
+      });
+
+      Picasso
+          .with(holder.itemView.getContext())
+          .load(MovieDb.IMAGE_BASE_URL + movie.getPosterPath())
+          .placeholder(R.drawable.poster_placeholder)
+          .into((ImageView) holder.itemView);
+    }
+
+    @Override
+    public int getItemCount() {
+      return mMovies != null ? mMovies.size() : 0;
+    }
+  }
+
+  class ViewHolder extends RecyclerView.ViewHolder {
+
+    ViewHolder(View itemView) {
+      super(itemView);
+    }
   }
 
 }
