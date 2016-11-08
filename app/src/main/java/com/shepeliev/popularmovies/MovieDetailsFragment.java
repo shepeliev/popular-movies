@@ -13,32 +13,44 @@ import com.shepeliev.popularmovies.moviedb.Movie;
 import com.shepeliev.popularmovies.moviedb.MovieDb;
 import com.squareup.picasso.Picasso;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MovieDetailsFragment extends Fragment {
 
   public static final String EXTRA_MOVIE = "movie";
+
+  @BindView(R.id.title_text_view)
+  TextView titleTextView;
+
+  @BindView(R.id.release_date_text_view)
+  TextView releaseDateTextView;
+
+  @BindView(R.id.vote_text_view)
+  TextView voteTextView;
+
+  @BindView(R.id.overview_text_view)
+  TextView overviewTextView;
+
+  @BindView(R.id.poster_image_view)
+  ImageView posterImageView;
+
 
   @Override
   public View onCreateView(LayoutInflater inflater,
                            ViewGroup container,
                            Bundle savedInstanceState) {
     View rootView = inflater.inflate(R.layout.fragment_movie_details, container, false);
+    ButterKnife.bind(this, rootView);
 
     Intent intent = getActivity().getIntent();
     Movie movie = intent.getParcelableExtra(EXTRA_MOVIE);
 
-    TextView titleTextView = (TextView) rootView.findViewById(R.id.title_text_view);
     titleTextView.setText(movie.getOriginalTitle());
-
-    TextView releaseDateTextView = (TextView) rootView.findViewById(R.id.release_date_text_view);
     releaseDateTextView.setText(movie.getReleaseDate());
-
-    TextView voteTextView = (TextView) rootView.findViewById(R.id.vote_text_view);
     voteTextView.setText(getString(R.string.vote_average, movie.getVoteAverage()));
-
-    TextView overviewTextView = (TextView) rootView.findViewById(R.id.overview_text_view);
     overviewTextView.setText(movie.getOverview());
 
-    ImageView posterImageView = (ImageView) rootView.findViewById(R.id.poster_image_view);
     Picasso
         .with(getActivity())
         .load(MovieDb.IMAGE_BASE_URL + movie.getPosterPath())
