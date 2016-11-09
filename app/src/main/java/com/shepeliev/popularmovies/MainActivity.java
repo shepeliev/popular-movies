@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.shepeliev.popularmovies.moviedb.Movie;
+import com.shepeliev.popularmovies.moviedb.MovieListItem;
 
 public class MainActivity extends AppCompatActivity
     implements MovieListFragment.MovieListFragmentListener {
@@ -35,9 +35,9 @@ public class MainActivity extends AppCompatActivity
   }
 
   @Override
-  public void onMovieClick(Movie movie) {
+  public void onMovieClick(MovieListItem movieListItem) {
     Intent intent = new Intent(this, MovieDetailsActivity.class);
-    intent.putExtra(MovieDetailsFragment.EXTRA_MOVIE, movie);
+    intent.putExtra(MovieDetailsFragment.EXTRA_MOVIE_ID, movieListItem.getId());
     startActivity(intent);
   }
 }

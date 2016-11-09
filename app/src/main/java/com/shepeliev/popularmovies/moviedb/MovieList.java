@@ -4,13 +4,13 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-final class MovieResponse {
+public final class MovieList {
 
   @SerializedName("page")
   private int mPage;
 
   @SerializedName("results")
-  private List<Movie> mResults;
+  private List<MovieListItem> mResults;
 
   @SerializedName("total_results")
   private int mTotalResults;
@@ -22,7 +22,7 @@ final class MovieResponse {
     return mPage;
   }
 
-  public List<Movie> getResults() {
+  public List<MovieListItem> getResults() {
     return mResults;
   }
 
@@ -39,7 +39,7 @@ final class MovieResponse {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    MovieResponse that = (MovieResponse) o;
+    MovieList that = (MovieList) o;
 
     if (mPage != that.mPage) return false;
     if (mTotalResults != that.mTotalResults) return false;

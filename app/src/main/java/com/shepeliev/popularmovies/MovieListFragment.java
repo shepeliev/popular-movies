@@ -12,10 +12,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.Toast;
 
-import com.shepeliev.popularmovies.moviedb.Movie;
 import com.shepeliev.popularmovies.moviedb.MovieDb;
+import com.shepeliev.popularmovies.moviedb.MovieList;
+import com.shepeliev.popularmovies.moviedb.MovieListItem;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -25,14 +25,13 @@ import butterknife.ButterKnife;
 
 public class MovieListFragment extends Fragment {
 
-  private final MovieDb mMovieDb = new MovieDb();
   private final MovieListAdapter mMovieListAdapter = new MovieListAdapter();
 
   @BindView(R.id.movies_grid_view)
   RecyclerView mMoviesRecyclerView;
 
   private MovieListFragmentListener mMovieListFragmentListener;
-  private List<Movie> mMovies;
+  private List<MovieListItem> mMovies;
 
   @Nullable
   @Override
@@ -57,17 +56,11 @@ public class MovieListFragment extends Fragment {
         getString(R.string.pref_top_rated_value));
     MovieDb.Sort sort = MovieDb.Sort.valueOf(sortStr);
 
-    mMovieDb.getMovies(sort, new MovieDb.AsyncCallback() {
+    MovieDb.getInstance().getMovies(sort, new ErrorHandledAsyncCallback<MovieList>(getActivity()) {
       @Override
-      public void onData(List<Movie> data) {
-        mMovies = data;
+      public void onData(MovieList data) {
+        mMovies = data.getResults();
         mMovieListAdapter.notifyDataSetChanged();
-      }
-
-      @Override
-      public void onError(String error) {
-        Toast.makeText(getActivity(), getString(R.string.network_error, error),
-            Toast.LENGTH_SHORT).show();
       }
     });
   }
@@ -97,7 +90,7 @@ public class MovieListFragment extends Fragment {
 
   public interface MovieListFragmentListener {
 
-    void onMovieClick(Movie movie);
+    void onMovieClick(MovieListItem movieListItem);
   }
 
   class MovieListAdapter extends RecyclerView.Adapter<ViewHolder> {
@@ -112,17 +105,17 @@ public class MovieListFragment extends Fragment {
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-      final Movie movie = mMovies.get(position);
+      final MovieListItem movieListItem = mMovies.get(position);
 
       holder.itemView.setOnClickListener(v -> {
         if (mMovieListFragmentListener != null) {
-          mMovieListFragmentListener.onMovieClick(movie);
+          mMovieListFragmentListener.onMovieClick(movieListItem);
         }
       });
 
       Picasso
           .with(holder.itemView.getContext())
-          .load(MovieDb.IMAGE_BASE_URL + movie.getPosterPath())
+          .load(MovieDb.IMAGE_BASE_URL + movieListItem.getPosterPath())
           .placeholder(R.drawable.poster_placeholder)
           .into((ImageView) holder.itemView);
     }

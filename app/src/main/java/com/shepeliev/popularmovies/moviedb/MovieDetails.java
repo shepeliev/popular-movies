@@ -5,17 +5,17 @@ import com.google.gson.annotations.SerializedName;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public final class Movie implements Parcelable {
+public class MovieDetails implements Parcelable {
 
-  public static final Creator<Movie> CREATOR = new Creator<Movie>() {
+  public static final Creator<MovieDetails> CREATOR = new Creator<MovieDetails>() {
     @Override
-    public Movie createFromParcel(Parcel in) {
-      return new Movie(in);
+    public MovieDetails createFromParcel(Parcel in) {
+      return new MovieDetails(in);
     }
 
     @Override
-    public Movie[] newArray(int size) {
-      return new Movie[size];
+    public MovieDetails[] newArray(int size) {
+      return new MovieDetails[size];
     }
   };
 
@@ -34,12 +34,31 @@ public final class Movie implements Parcelable {
   @SerializedName("vote_average")
   private double mVoteAverage;
 
-  private Movie(Parcel parcel) {
-    mOriginalTitle = parcel.readString();
-    mPosterPath = parcel.readString();
-    mOverview = parcel.readString();
-    mReleaseDate = parcel.readString();
-    mVoteAverage = parcel.readDouble();
+  @SerializedName("runtime")
+  private int mRuntime;
+
+  private MovieDetails(Parcel in) {
+    mOriginalTitle = in.readString();
+    mPosterPath = in.readString();
+    mOverview = in.readString();
+    mReleaseDate = in.readString();
+    mVoteAverage = in.readDouble();
+    mRuntime = in.readInt();
+  }
+
+  @Override
+  public int describeContents() {
+    return 0;
+  }
+
+  @Override
+  public void writeToParcel(Parcel dest, int flags) {
+    dest.writeString(mOriginalTitle);
+    dest.writeString(mPosterPath);
+    dest.writeString(mOverview);
+    dest.writeString(mReleaseDate);
+    dest.writeDouble(mVoteAverage);
+    dest.writeInt(mRuntime);
   }
 
   public String getOriginalTitle() {
@@ -62,18 +81,8 @@ public final class Movie implements Parcelable {
     return mVoteAverage;
   }
 
-  @Override
-  public int describeContents() {
-    return 0;
-  }
-
-  @Override
-  public void writeToParcel(Parcel dest, int flags) {
-    dest.writeString(mOriginalTitle);
-    dest.writeString(mPosterPath);
-    dest.writeString(mOverview);
-    dest.writeString(mReleaseDate);
-    dest.writeDouble(mVoteAverage);
+  public int getRuntime() {
+    return mRuntime;
   }
 
   @Override
@@ -81,18 +90,19 @@ public final class Movie implements Parcelable {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    Movie movie = (Movie) o;
+    MovieDetails that = (MovieDetails) o;
 
-    if (Double.compare(movie.mVoteAverage, mVoteAverage) != 0) return false;
+    if (Double.compare(that.mVoteAverage, mVoteAverage) != 0) return false;
+    if (mRuntime != that.mRuntime) return false;
     if (mOriginalTitle != null ?
-        !mOriginalTitle.equals(movie.mOriginalTitle) : movie.mOriginalTitle != null)
+        !mOriginalTitle.equals(that.mOriginalTitle) : that.mOriginalTitle != null)
       return false;
-    if (mPosterPath != null ? !mPosterPath.equals(movie.mPosterPath) : movie.mPosterPath != null)
+    if (mPosterPath != null ? !mPosterPath.equals(that.mPosterPath) : that.mPosterPath != null)
       return false;
-    if (mOverview != null ? !mOverview.equals(movie.mOverview) : movie.mOverview != null)
+    if (mOverview != null ? !mOverview.equals(that.mOverview) : that.mOverview != null)
       return false;
     return mReleaseDate != null ?
-        mReleaseDate.equals(movie.mReleaseDate) : movie.mReleaseDate == null;
+        mReleaseDate.equals(that.mReleaseDate) : that.mReleaseDate == null;
 
   }
 
@@ -106,17 +116,19 @@ public final class Movie implements Parcelable {
     result = 31 * result + (mReleaseDate != null ? mReleaseDate.hashCode() : 0);
     temp = Double.doubleToLongBits(mVoteAverage);
     result = 31 * result + (int) (temp ^ (temp >>> 32));
+    result = 31 * result + mRuntime;
     return result;
   }
 
   @Override
   public String toString() {
-    final StringBuffer sb = new StringBuffer("Movie{");
+    final StringBuffer sb = new StringBuffer("MovieDetails{");
     sb.append("mOriginalTitle='").append(mOriginalTitle).append('\'');
     sb.append(", mPosterPath='").append(mPosterPath).append('\'');
     sb.append(", mOverview='").append(mOverview).append('\'');
     sb.append(", mReleaseDate='").append(mReleaseDate).append('\'');
     sb.append(", mVoteAverage=").append(mVoteAverage);
+    sb.append(", mRuntime=").append(mRuntime);
     sb.append('}');
     return sb.toString();
   }
