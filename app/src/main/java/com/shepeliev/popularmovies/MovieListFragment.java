@@ -114,13 +114,9 @@ public class MovieListFragment extends Fragment {
     public void onBindViewHolder(ViewHolder holder, int position) {
       final Movie movie = mMovies.get(position);
 
-      holder.itemView.setOnClickListener(new View.OnClickListener() {
-
-        @Override
-        public void onClick(View v) {
-          if (mMovieListFragmentListener != null) {
-            mMovieListFragmentListener.onMovieClick(movie);
-          }
+      holder.itemView.setOnClickListener(v -> {
+        if (mMovieListFragmentListener != null) {
+          mMovieListFragmentListener.onMovieClick(movie);
         }
       });
 
