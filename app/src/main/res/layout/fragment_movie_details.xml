@@ -1,77 +1,98 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-
-<LinearLayout
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        style="?android:attr/progressBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_gravity="center" />
 
-        tools:context=".MovieDetailsFragment">
+    <ScrollView
+        android:id="@+id/details_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
 
-    <TextView
-            android:id="@+id/title_text_view"
-            android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:gravity="center_vertical"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingStart="@dimen/activity_horizontal_margin"
-            android:paddingEnd="@dimen/activity_horizontal_margin"
-            android:textSize="32sp"
-            android:background="@color/colorMovieTitleBackground"
-            android:textColor="@color/colorMovieTitle"
-            tools:text="Chappie" />
-
-    <LinearLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
-            android:paddingTop="5dp"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            tools:context=".MovieDetailsFragment">
 
-        <ImageView
-                android:id="@+id/poster_image_view"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:adjustViewBounds="true"
-                android:paddingRight="10dp"
-                tools:src="@drawable/poster_placeholder"/>
-        
-        <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:paddingLeft="10dp">
             <TextView
-                    android:id="@+id/release_date_text_view"
-                    android:layout_width="wrap_content"
+                android:id="@+id/title_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:background="@color/colorMovieTitleBackground"
+                android:gravity="center_vertical"
+                android:paddingEnd="@dimen/activity_horizontal_margin"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingStart="@dimen/activity_horizontal_margin"
+                android:textColor="@color/colorMovieTitle"
+                android:textSize="32sp"
+                tools:text="Chappie" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="5dp">
+
+                <ImageView
+                    android:id="@+id/poster_image_view"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:textAppearanceLarge"
-                    tools:text="2015" />
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:paddingRight="10dp"
+                    tools:src="@drawable/poster_placeholder" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:paddingLeft="10dp">
+
+                    <TextView
+                        android:id="@+id/release_date_text_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:textAppearanceLarge"
+                        tools:text="2015" />
+
+                    <TextView
+                        android:id="@+id/runtime_text_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textStyle="italic"
+                        tools:text="120 min" />
+
+                    <TextView
+                        android:id="@+id/vote_text_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="@dimen/activity_vertical_margin"
+                        android:textAppearance="?android:textAppearanceSmall"
+                        tools:text="7.07/10" />
+                </LinearLayout>
+
+            </LinearLayout>
+
             <TextView
-                    android:id="@+id/vote_text_view"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:textAppearanceSmall"
-                    tools:text="7.07/10"/>
+                android:id="@+id/overview_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/activity_horizontal_margin"
+                tools:text="After his career is destroyed, a brilliant but arrogant surgeon gets a new
+            lease on life when a sorcerer takes him under his wing and trains him to defend the
+            world against evil." />
         </LinearLayout>
 
-    </LinearLayout>
-
-    <TextView
-            android:id="@+id/overview_text_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/activity_horizontal_margin"
-            tools:text="After his career is destroyed, a brilliant but arrogant surgeon gets a new
-            lease on life when a sorcerer takes him under his wing and trains him to defend the
-            world against evil."/>
-
-</LinearLayout>
-
-</ScrollView>
+    </ScrollView>
+</FrameLayout>

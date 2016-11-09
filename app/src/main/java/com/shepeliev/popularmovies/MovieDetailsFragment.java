@@ -22,6 +22,11 @@ public class MovieDetailsFragment extends Fragment {
 
   public static final String EXTRA_MOVIE_ID = "movie_id";
 
+  @BindView(R.id.progress_bar)
+  ProgressBar mProgressBar;
+
+  @BindView(R.id.details_container)
+  ScrollView mDetailsContainer;
 
   @BindView(R.id.title_text_view)
   TextView mTitleTextView;
@@ -61,6 +66,8 @@ public class MovieDetailsFragment extends Fragment {
               mVoteTextView.setText(getString(R.string.vote_average, data.getVoteAverage()));
               mOverviewTextView.setText(data.getOverview());
 
+              mProgressBar.setVisibility(View.GONE);
+              mDetailsContainer.setVisibility(View.VISIBLE);
 
               Picasso
                   .with(getActivity())
