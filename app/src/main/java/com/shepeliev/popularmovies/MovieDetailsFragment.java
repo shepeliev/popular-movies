@@ -20,7 +20,6 @@ import com.shepeliev.popularmovies.moviedb.MovieDb;
 import com.shepeliev.popularmovies.moviedb.MovieDetails;
 import com.shepeliev.popularmovies.moviedb.Review;
 import com.shepeliev.popularmovies.moviedb.Trailer;
-import com.shepeliev.popularmovies.moviedb.TrailerList;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -87,9 +86,9 @@ public class MovieDetailsFragment extends Fragment {
         }
       });
 
-      sMovieDb.getTrailers(movieId, new ErrorHandledAsyncCallback<TrailerList>(getContext()) {
+      sMovieDb.getTrailers(movieId, new ErrorHandledAsyncCallback<ListResponse<Trailer>>(getContext()) {
         @Override
-        public void onData(TrailerList data) {
+        public void onData(ListResponse<Trailer> data) {
           bindTrailers(data.getResults());
         }
       });

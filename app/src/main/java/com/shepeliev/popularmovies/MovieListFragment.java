@@ -13,8 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.shepeliev.popularmovies.moviedb.ListResponse;
 import com.shepeliev.popularmovies.moviedb.MovieDb;
-import com.shepeliev.popularmovies.moviedb.MovieList;
 import com.shepeliev.popularmovies.moviedb.MovieListItem;
 import com.squareup.picasso.Picasso;
 
@@ -56,13 +56,14 @@ public class MovieListFragment extends Fragment {
         getString(R.string.pref_top_rated_value));
     MovieDb.Sort sort = MovieDb.Sort.valueOf(sortStr);
 
-    MovieDb.getInstance().getMovies(sort, new ErrorHandledAsyncCallback<MovieList>(getActivity()) {
-      @Override
-      public void onData(MovieList data) {
-        mMovies = data.getResults();
-        mMovieListAdapter.notifyDataSetChanged();
-      }
-    });
+    MovieDb.getInstance().getMovies(sort,
+        new ErrorHandledAsyncCallback<ListResponse<MovieListItem>>(getActivity()) {
+          @Override
+          public void onData(ListResponse<MovieListItem> data) {
+            mMovies = data.getResults();
+            mMovieListAdapter.notifyDataSetChanged();
+          }
+        });
   }
 
   @Override

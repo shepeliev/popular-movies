@@ -28,8 +28,8 @@ public final class MovieDb {
     return sInstance;
   }
 
-  public void getMovies(Sort sort, AsyncCallback<MovieList> asyncCallback) {
-    Call<MovieList> call;
+  public void getMovies(Sort sort, AsyncCallback<ListResponse<MovieListItem>> asyncCallback) {
+    Call<ListResponse<MovieListItem>> call;
     switch (sort) {
       case TOP_RATED:
         call = mMovieDbApi.getTopRated(BuildConfig.MOVIE_DB_API_KEY);
@@ -48,7 +48,7 @@ public final class MovieDb {
     enqueueCall(mMovieDbApi.getDetails(id, BuildConfig.MOVIE_DB_API_KEY), asyncCallback);
   }
 
-  public void getTrailers(int id, AsyncCallback<TrailerList> asyncCallback) {
+  public void getTrailers(int id, AsyncCallback<ListResponse<Trailer>> asyncCallback) {
     enqueueCall(mMovieDbApi.getTrailers(id, BuildConfig.MOVIE_DB_API_KEY), asyncCallback);
   }
 
