@@ -52,6 +52,10 @@ public final class MovieDb {
     enqueueCall(mMovieDbApi.getTrailers(id, BuildConfig.MOVIE_DB_API_KEY), asyncCallback);
   }
 
+  public void getReviews(int id, AsyncCallback<ListResponse<Review>> asyncCallback) {
+    enqueueCall(mMovieDbApi.getReviews(id, BuildConfig.MOVIE_DB_API_KEY), asyncCallback);
+  }
+
   private <T> void enqueueCall(Call<T> call, final AsyncCallback<T> asyncCallback) {
     call.enqueue(new Callback<T>() {
       @Override

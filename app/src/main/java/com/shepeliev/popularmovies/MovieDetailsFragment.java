@@ -15,8 +15,10 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.shepeliev.popularmovies.moviedb.ListResponse;
 import com.shepeliev.popularmovies.moviedb.MovieDb;
 import com.shepeliev.popularmovies.moviedb.MovieDetails;
+import com.shepeliev.popularmovies.moviedb.Review;
 import com.shepeliev.popularmovies.moviedb.Trailer;
 import com.shepeliev.popularmovies.moviedb.TrailerList;
 import com.squareup.picasso.Picasso;
@@ -30,6 +32,7 @@ public class MovieDetailsFragment extends Fragment {
 
   public static final String EXTRA_MOVIE_ID = "movie_id";
   private static final MovieDb sMovieDb = MovieDb.getInstance();
+  private static final String YOUTUBE_URL = "https://www.youtube.com/watch?v=";
 
   @BindView(R.id.progress_bar)
   ProgressBar mProgressBar;
@@ -55,11 +58,17 @@ public class MovieDetailsFragment extends Fragment {
   @BindView(R.id.poster_image_view)
   ImageView mPosterImageView;
 
+  @BindView(R.id.trailers_container)
+  LinearLayout mTrailersContainer;
+
   @BindView(R.id.trailer_list)
   RecyclerView mTrailerList;
 
-  @BindView(R.id.trailers_container)
-  LinearLayout mTrailersContainer;
+  @BindView(R.id.reviews_container)
+  LinearLayout mReviewsContainer;
+
+  @BindView(R.id.review_list)
+  RecyclerView mReviewList;
 
   @Override
   public View onCreateView(LayoutInflater inflater,
@@ -84,9 +93,30 @@ public class MovieDetailsFragment extends Fragment {
           bindTrailers(data.getResults());
         }
       });
+
+      sMovieDb.getReviews(movieId,
+          new ErrorHandledAsyncCallback<ListResponse<Review>>(getContext()) {
+            @Override
+            public void onData(ListResponse<Review> data) {
+              bindReviews(data.getResults());
+            }
+          });
     }
 
     return rootView;
+  }
+
+  private void bindReviews(List<Review> results) {
+    if (results.size() == 0) {
+      return;
+    }
+
+    mReviewsContainer.setVisibility(View.VISIBLE);
+
+    RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+    layoutManager.setAutoMeasureEnabled(true);
+    mReviewList.setAdapter(new ReviewListAdapter(results));
+    mReviewList.setLayoutManager(layoutManager);
   }
 
   private void bindTrailers(List<Trailer> results) {
@@ -130,6 +160,20 @@ public class MovieDetailsFragment extends Fragment {
     }
   }
 
+  class ReviewViewHolder extends RecyclerView.ViewHolder {
+
+    @BindView(R.id.review_author_text_view)
+    TextView mAuthorTextView;
+
+    @BindView(R.id.review_content_text_view)
+    TextView mContentTextView;
+
+    public ReviewViewHolder(View itemView) {
+      super(itemView);
+      ButterKnife.bind(this, itemView);
+    }
+  }
+
   private class TrailerListAdapter extends RecyclerView.Adapter<TrailerViewHolder> {
 
     private final List<Trailer> mTrailers;
@@ -150,7 +194,7 @@ public class MovieDetailsFragment extends Fragment {
       holder.itemView.setOnClickListener(v -> {
         Trailer trailer = mTrailers.get(position);
         Intent intent = new Intent(Intent.ACTION_VIEW,
-            Uri.parse("https://www.youtube.com/watch?v=" + trailer.getKey()));
+            Uri.parse(YOUTUBE_URL + trailer.getKey()));
         getContext().startActivity(intent);
       });
       holder.mTrailerName.setText(mTrailers.get(position).getName());
@@ -159,6 +203,33 @@ public class MovieDetailsFragment extends Fragment {
     @Override
     public int getItemCount() {
       return mTrailers.size();
+    }
+  }
+
+  private class ReviewListAdapter extends RecyclerView.Adapter<ReviewViewHolder> {
+
+    private final List<Review> mReviews;
+
+    private ReviewListAdapter(List<Review> reviews) {
+      mReviews = reviews;
+    }
+
+    @Override
+    public ReviewViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+      View rootView =
+          LayoutInflater.from(getContext()).inflate(R.layout.review_list_item, parent, false);
+      return new ReviewViewHolder(rootView);
+    }
+
+    @Override
+    public void onBindViewHolder(ReviewViewHolder holder, int position) {
+      holder.mAuthorTextView.setText(mReviews.get(position).getAuthor());
+      holder.mContentTextView.setText(mReviews.get(position).getContent());
+    }
+
+    @Override
+    public int getItemCount() {
+      return mReviews.size();
     }
   }
 }

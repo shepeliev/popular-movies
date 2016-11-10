@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class MovieDetails implements Parcelable {
+public final class MovieDetails implements Parcelable {
 
   public static final Creator<MovieDetails> CREATOR = new Creator<MovieDetails>() {
     @Override

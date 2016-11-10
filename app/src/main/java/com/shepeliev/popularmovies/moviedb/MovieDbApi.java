@@ -18,4 +18,7 @@ interface MovieDbApi {
 
   @GET("movie/{id}/videos")
   Call<TrailerList> getTrailers(@Path("id") int id, @Query("api_key") String apiKey);
+
+  @GET("movie/{id}/reviews")
+  Call<ListResponse<Review>> getReviews(@Path("id") int id, @Query("api_key") String apiKey);
 }

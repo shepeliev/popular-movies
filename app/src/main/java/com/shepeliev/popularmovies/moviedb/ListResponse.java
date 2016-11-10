@@ -4,12 +4,12 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class TrailerList {
+public final class ListResponse<T> {
 
   @SerializedName("results")
-  private List<Trailer> mResults;
+  private List<T> mResults;
 
-  public List<Trailer> getResults() {
+  public List<T> getResults() {
     return mResults;
   }
 
@@ -18,9 +18,10 @@ public class TrailerList {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    TrailerList that = (TrailerList) o;
+    ListResponse that = (ListResponse) o;
 
     return mResults != null ? mResults.equals(that.mResults) : that.mResults == null;
+
   }
 
   @Override
@@ -30,7 +31,7 @@ public class TrailerList {
 
   @Override
   public String toString() {
-    final StringBuffer sb = new StringBuffer("TrailerList{");
+    final StringBuffer sb = new StringBuffer("MovieDbResponse{");
     sb.append("mResults=").append(mResults);
     sb.append('}');
     return sb.toString();
