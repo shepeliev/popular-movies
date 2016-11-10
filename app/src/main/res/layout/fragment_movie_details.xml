@@ -1,8 +1,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="wrap_content">
 
     <ProgressBar
         android:id="@+id/progress_bar"
@@ -20,11 +19,11 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            tools:context=".MovieDetailsFragment">
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/title_text_view"
+                style="@style/TextAppearance.AppCompat.Display1"
                 android:layout_width="match_parent"
                 android:layout_height="80dp"
                 android:background="@color/colorMovieTitleBackground"
@@ -33,73 +32,98 @@
                 android:paddingLeft="@dimen/activity_horizontal_margin"
                 android:paddingStart="@dimen/activity_horizontal_margin"
                 android:textColor="@color/colorMovieTitle"
-                android:textSize="32sp"
                 tools:text="Chappie" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
-                android:paddingTop="5dp">
-
-                <ImageView
-                    android:id="@+id/poster_image_view"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:adjustViewBounds="true"
-                    android:paddingRight="10dp"
-                    tools:src="@drawable/poster_placeholder" />
+                android:paddingRight="@dimen/activity_horizontal_margin">
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:paddingTop="5dp">
+
+                    <ImageView
+                        android:id="@+id/poster_image_view"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:adjustViewBounds="true"
+                        android:paddingRight="10dp"
+                        tools:src="@drawable/poster_placeholder" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:paddingLeft="10dp">
+
+                        <TextView
+                            android:id="@+id/release_date_text_view"
+                            style="@style/TextAppearance.AppCompat.Headline"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            tools:text="2015" />
+
+                        <TextView
+                            android:id="@+id/runtime_text_view"
+                            style="@style/TextAppearance.AppCompat.Caption"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textStyle="italic"
+                            tools:text="120 min" />
+
+                        <TextView
+                            android:id="@+id/vote_text_view"
+                            style="@style/TextAppearance.AppCompat.Body2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingTop="@dimen/activity_vertical_margin"
+                            tools:text="7.07/10" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/overview_text_view"
+                    style="@style/TextAppearance.AppCompat.Body1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="@dimen/activity_vertical_margin"
+                    tools:text="After his career is destroyed, a brilliant but arrogant surgeon gets a new
+            lease on life when a sorcerer takes him under his wing and trains him to defend the
+            world against evil." />
+
+                <LinearLayout
+                    android:id="@+id/trailers_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:paddingLeft="10dp">
+                    android:visibility="gone">
 
                     <TextView
-                        android:id="@+id/release_date_text_view"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textAppearance="?android:textAppearanceLarge"
-                        tools:text="2015" />
-
-                    <TextView
-                        android:id="@+id/runtime_text_view"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textStyle="italic"
-                        tools:text="120 min" />
-
-                    <TextView
-                        android:id="@+id/vote_text_view"
+                        style="@style/TextAppearance.AppCompat.Body2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingTop="@dimen/activity_vertical_margin"
-                        android:textAppearance="?android:textAppearanceSmall"
-                        tools:text="7.07/10" />
+                        android:text="@string/trailers"
+                        android:textStyle="bold" />
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/trailer_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="5dp" />
+
                 </LinearLayout>
 
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/overview_text_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/activity_horizontal_margin"
-                tools:text="After his career is destroyed, a brilliant but arrogant surgeon gets a new
-            lease on life when a sorcerer takes him under his wing and trains him to defend the
-            world against evil." />
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/trailer_list"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layoutManager="android.support.v7.widget.LinearLayoutManager"
-                />
         </LinearLayout>
 
     </ScrollView>

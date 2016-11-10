@@ -4,11 +4,13 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -56,6 +58,9 @@ public class MovieDetailsFragment extends Fragment {
   @BindView(R.id.trailer_list)
   RecyclerView mTrailerList;
 
+  @BindView(R.id.trailers_container)
+  LinearLayout mTrailersContainer;
+
   @Override
   public View onCreateView(LayoutInflater inflater,
                            ViewGroup container,
@@ -85,7 +90,16 @@ public class MovieDetailsFragment extends Fragment {
   }
 
   private void bindTrailers(List<Trailer> results) {
+    if (results.size() == 0) {
+      return;
+    }
+
+    mTrailersContainer.setVisibility(View.VISIBLE);
+
+    RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+    layoutManager.setAutoMeasureEnabled(true);
     mTrailerList.setAdapter(new TrailerListAdapter(results));
+    mTrailerList.setLayoutManager(layoutManager);
   }
 
   private void bindDetails(MovieDetails movieDetails) {
