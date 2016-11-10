@@ -73,11 +73,11 @@ public class MovieDetailsFragment extends Fragment {
   public View onCreateView(LayoutInflater inflater,
                            ViewGroup container,
                            Bundle savedInstanceState) {
-    View rootView = inflater.inflate(R.layout.fragment_movie_details, container, false);
+    final View rootView = inflater.inflate(R.layout.fragment_movie_details, container, false);
     ButterKnife.bind(this, rootView);
 
-    Intent intent = getActivity().getIntent();
-    int movieId = intent.getIntExtra(EXTRA_MOVIE_ID, -1);
+    final Intent intent = getActivity().getIntent();
+    final int movieId = intent.getIntExtra(EXTRA_MOVIE_ID, -1);
     if (movieId > -1) {
       sMovieDb.getMovieDetails(movieId, new ErrorHandledAsyncCallback<MovieDetails>(getContext()) {
         @Override
@@ -112,7 +112,7 @@ public class MovieDetailsFragment extends Fragment {
 
     mReviewsContainer.setVisibility(View.VISIBLE);
 
-    RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+    final RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
     layoutManager.setAutoMeasureEnabled(true);
     mReviewList.setAdapter(new ReviewListAdapter(results));
     mReviewList.setLayoutManager(layoutManager);
@@ -125,7 +125,7 @@ public class MovieDetailsFragment extends Fragment {
 
     mTrailersContainer.setVisibility(View.VISIBLE);
 
-    RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+    final RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
     layoutManager.setAutoMeasureEnabled(true);
     mTrailerList.setAdapter(new TrailerListAdapter(results));
     mTrailerList.setLayoutManager(layoutManager);
@@ -183,7 +183,7 @@ public class MovieDetailsFragment extends Fragment {
 
     @Override
     public TrailerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-      View rootView =
+      final View rootView =
           LayoutInflater.from(getContext()).inflate(R.layout.trailer_list_item, parent, false);
       return new TrailerViewHolder(rootView);
     }
@@ -191,9 +191,9 @@ public class MovieDetailsFragment extends Fragment {
     @Override
     public void onBindViewHolder(TrailerViewHolder holder, int position) {
       holder.itemView.setOnClickListener(v -> {
-        Trailer trailer = mTrailers.get(position);
-        Intent intent = new Intent(Intent.ACTION_VIEW,
-            Uri.parse(YOUTUBE_URL + trailer.getKey()));
+        final Trailer trailer = mTrailers.get(position);
+        final Intent intent =
+            new Intent(Intent.ACTION_VIEW, Uri.parse(YOUTUBE_URL + trailer.getKey()));
         getContext().startActivity(intent);
       });
       holder.mTrailerName.setText(mTrailers.get(position).getName());
@@ -215,7 +215,7 @@ public class MovieDetailsFragment extends Fragment {
 
     @Override
     public ReviewViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-      View rootView =
+      final View rootView =
           LayoutInflater.from(getContext()).inflate(R.layout.review_list_item, parent, false);
       return new ReviewViewHolder(rootView);
     }

@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     if (item.getItemId() == R.id.action_settings) {
-      Intent intent = new Intent(this, SettingsActivity.class);
+      final Intent intent = new Intent(this, SettingsActivity.class);
       startActivity(intent);
       return true;
     }
@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity
 
   @Override
   public void onMovieClick(MovieListItem movieListItem) {
-    Intent intent = new Intent(this, MovieDetailsActivity.class);
+    final Intent intent = new Intent(this, MovieDetailsActivity.class);
     intent.putExtra(MovieDetailsFragment.EXTRA_MOVIE_ID, movieListItem.getId());
     startActivity(intent);
   }

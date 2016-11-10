@@ -29,7 +29,7 @@ public final class MovieDb {
   }
 
   public void getMovies(Sort sort, AsyncCallback<ListResponse<MovieListItem>> asyncCallback) {
-    Call<ListResponse<MovieListItem>> call;
+    final Call<ListResponse<MovieListItem>> call;
     switch (sort) {
       case TOP_RATED:
         call = mMovieDbApi.getTopRated(BuildConfig.MOVIE_DB_API_KEY);
