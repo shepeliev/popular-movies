@@ -78,29 +78,32 @@ public class MovieDetailsFragment extends Fragment {
 
     final Intent intent = getActivity().getIntent();
     final int movieId = intent.getIntExtra(EXTRA_MOVIE_ID, -1);
-    if (movieId > -1) {
-      sMovieDb.getMovieDetails(movieId, new ErrorHandledAsyncCallback<MovieDetails>(getContext()) {
-        @Override
-        public void onData(MovieDetails data) {
-          bindDetails(data);
-        }
-      });
 
-      sMovieDb.getTrailers(movieId, new ErrorHandledAsyncCallback<ListResponse<Trailer>>(getContext()) {
-        @Override
-        public void onData(ListResponse<Trailer> data) {
-          bindTrailers(data.getResults());
-        }
-      });
-
-      sMovieDb.getReviews(movieId,
-          new ErrorHandledAsyncCallback<ListResponse<Review>>(getContext()) {
-            @Override
-            public void onData(ListResponse<Review> data) {
-              bindReviews(data.getResults());
-            }
-          });
+    if (movieId <= -1) {
+      return rootView;
     }
+
+    sMovieDb.getMovieDetails(movieId, new ErrorHandledAsyncCallback<MovieDetails>(getContext()) {
+      @Override
+      public void onData(MovieDetails data) {
+        bindDetails(data);
+      }
+    });
+
+    sMovieDb.getTrailers(movieId,
+        new ErrorHandledAsyncCallback<ListResponse<Trailer>>(getContext()) {
+          @Override
+          public void onData(ListResponse<Trailer> data) {
+            bindTrailers(data.getResults());
+          }
+        });
+
+    sMovieDb.getReviews(movieId, new ErrorHandledAsyncCallback<ListResponse<Review>>(getContext()) {
+      @Override
+      public void onData(ListResponse<Review> data) {
+        bindReviews(data.getResults());
+      }
+    });
 
     return rootView;
   }
