@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:name="com.shepeliev.popularmovies.MovieDetailsFragment"
-        tools:context="com.shepeliev.popularmovies.MovieDetailsActivity"
-        tools:layout="@layout/fragment_movie_details" />
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/movie_details_fragment"
+    android:name="com.shepeliev.popularmovies.MovieDetailsFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.shepeliev.popularmovies.MovieDetailsActivity"
+    tools:layout="@layout/fragment_movie_details" />

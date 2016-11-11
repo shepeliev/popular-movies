@@ -3,6 +3,7 @@ package com.shepeliev.popularmovies;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -17,6 +18,7 @@ import com.shepeliev.popularmovies.data.model.Movie;
 import com.shepeliev.popularmovies.moviedb.MovieDb;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -24,6 +26,9 @@ import butterknife.ButterKnife;
 
 public class MovieListFragment extends Fragment {
 
+  private static final String LOG_TAG = MovieListFragment.class.getSimpleName();
+  private static final String MOVIES_RECYCLER_VIEW_STATE = "moviesRecyclerViewState";
+  private static final String MOVIE_LIST_STATE = "moviesListState";
   private final MovieListAdapter mMovieListAdapter = new MovieListAdapter();
 
   @BindView(R.id.movies_grid_view)
@@ -37,17 +42,33 @@ public class MovieListFragment extends Fragment {
   public View onCreateView(LayoutInflater inflater,
                            @Nullable ViewGroup container,
                            @Nullable Bundle savedInstanceState) {
-    View rootView = inflater.inflate(R.layout.fragment_list_movies, container, false);
+    final View rootView = inflater.inflate(R.layout.fragment_list_movies, container, false);
     ButterKnife.bind(this, rootView);
 
     mMoviesRecyclerView.setAdapter(mMovieListAdapter);
-    mMoviesRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
+    final GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), 2);
+    mMoviesRecyclerView.setLayoutManager(layoutManager);
     mMoviesRecyclerView.setHasFixedSize(true);
 
-    loadMovies();
+    if (savedInstanceState == null) {
+      loadMovies();
+    } else {
+      mMovies = savedInstanceState.getParcelableArrayList(MOVIE_LIST_STATE);
+      layoutManager
+          .onRestoreInstanceState(savedInstanceState.getParcelable(MOVIES_RECYCLER_VIEW_STATE));
+    }
 
     return rootView;
   }
+
+  @Override
+  public void onSaveInstanceState(Bundle outState) {
+    Parcelable moviesRecyclerViewState =
+        mMoviesRecyclerView.getLayoutManager().onSaveInstanceState();
+    outState.putParcelableArrayList(MOVIE_LIST_STATE, new ArrayList<>(mMovies));
+    outState.putParcelable(MOVIES_RECYCLER_VIEW_STATE, moviesRecyclerViewState);
+  }
+
 
   private void loadMovies() {
     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());

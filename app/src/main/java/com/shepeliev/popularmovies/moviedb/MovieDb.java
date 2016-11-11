@@ -23,7 +23,6 @@ import java.util.List;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
-import rx.Observable;
 import rx.Single;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -124,15 +123,17 @@ public final class MovieDb {
         .observeOn(AndroidSchedulers.mainThread());
   }
 
-  public Observable<ListResponse<Trailer>> getTrailers(int id) {
+  public Single<List<Trailer>> getTrailers(int id) {
     return mMovieDbApi
         .getTrailersObservable(id, BuildConfig.MOVIE_DB_API_KEY)
+        .map(ListResponse::getResults)
         .observeOn(AndroidSchedulers.mainThread());
   }
 
-  public Observable<ListResponse<Review>> getReviews(int id) {
+  public Single<List<Review>> getReviews(int id) {
     return mMovieDbApi
         .getReviewsObservable(id, BuildConfig.MOVIE_DB_API_KEY)
+        .map(ListResponse::getResults)
         .observeOn(AndroidSchedulers.mainThread());
   }
 

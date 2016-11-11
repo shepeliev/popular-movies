@@ -8,7 +8,6 @@ import com.shepeliev.popularmovies.data.model.Trailer;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
-import rx.Observable;
 import rx.Single;
 
 interface MovieDbApi {
@@ -24,10 +23,10 @@ interface MovieDbApi {
                                      @Query("api_key") String apiKey);
 
   @GET("movie/{id}/videos")
-  Observable<ListResponse<Trailer>> getTrailersObservable(@Path("id") int id,
-                                                          @Query("api_key") String apiKey);
+  Single<ListResponse<Trailer>> getTrailersObservable(@Path("id") int id,
+                                                      @Query("api_key") String apiKey);
 
   @GET("movie/{id}/reviews")
-  Observable<ListResponse<Review>> getReviewsObservable(@Path("id") int id,
-                                                        @Query("api_key") String apiKey);
+  Single<ListResponse<Review>> getReviewsObservable(@Path("id") int id,
+                                                    @Query("api_key") String apiKey);
 }

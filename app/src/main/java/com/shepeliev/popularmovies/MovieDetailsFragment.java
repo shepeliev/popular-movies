@@ -18,13 +18,13 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.shepeliev.popularmovies.data.model.ListResponse;
 import com.shepeliev.popularmovies.data.model.Movie;
 import com.shepeliev.popularmovies.data.model.Review;
 import com.shepeliev.popularmovies.data.model.Trailer;
 import com.shepeliev.popularmovies.moviedb.MovieDb;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -36,6 +36,9 @@ public class MovieDetailsFragment extends Fragment {
 
   private static final String LOG_TAG = MovieDetailsFragment.class.getSimpleName();
   private static final String YOUTUBE_URL = "https://www.youtube.com/watch?v=";
+  private static final String MOVIE_STATE = "movie";
+  private static final String TRAILERS_STATE = "trailers";
+  private static final String REVIEWS_STATE = "reviews";
 
   @BindView(R.id.progress_bar)
   ProgressBar mProgressBar;
@@ -77,6 +80,9 @@ public class MovieDetailsFragment extends Fragment {
   Button mFavoriteButton;
 
   private MovieDb mMovieDb;
+  private Movie mMovie;
+  private List<Trailer> mTrailers;
+  private List<Review> mReviews;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -91,11 +97,32 @@ public class MovieDetailsFragment extends Fragment {
     final View rootView = inflater.inflate(R.layout.fragment_movie_details, container, false);
     ButterKnife.bind(this, rootView);
 
-    final Intent intent = getActivity().getIntent();
-    final int movieId = intent.getIntExtra(EXTRA_MOVIE_ID, -1);
+    if (savedInstanceState != null) {
+      restoreInstanceState(savedInstanceState);
+    } else {
+      bindViewsFromIntent(getActivity().getIntent());
+    }
 
+    return rootView;
+  }
+
+  @Override
+  public void onSaveInstanceState(Bundle outState) {
+    outState.putParcelable(MOVIE_STATE, mMovie);
+    outState.putParcelableArrayList(TRAILERS_STATE, new ArrayList<>(mTrailers));
+    outState.putParcelableArrayList(REVIEWS_STATE, new ArrayList<>(mReviews));
+  }
+
+  private void restoreInstanceState(Bundle savedInstanceState) {
+    bindDetails(savedInstanceState.getParcelable(MOVIE_STATE));
+    bindTrailers(savedInstanceState.getParcelableArrayList(TRAILERS_STATE));
+    bindReviews(savedInstanceState.getParcelableArrayList(REVIEWS_STATE));
+  }
+
+  private void bindViewsFromIntent(Intent intent) {
+    final int movieId = intent.getIntExtra(EXTRA_MOVIE_ID, -1);
     if (movieId <= -1) {
-      return rootView;
+      return;
     }
 
     mMovieDb.getMovieDetails(movieId).subscribe(
@@ -110,13 +137,11 @@ public class MovieDetailsFragment extends Fragment {
         this::bindReviews,
         throwable -> Log.e(LOG_TAG, "Network error", throwable)
     );
-
-    return rootView;
   }
 
-  private void bindReviews(ListResponse<Review> reviewList) {
-    final List<Review> reviews = reviewList.getResults();
-    if (reviews.size() == 0) {
+  private void bindReviews(List<Review> reviewList) {
+    mReviews = reviewList;
+    if (mReviews.size() == 0) {
       return;
     }
 
@@ -124,13 +149,13 @@ public class MovieDetailsFragment extends Fragment {
 
     final RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
     layoutManager.setAutoMeasureEnabled(true);
-    mReviewList.setAdapter(new ReviewListAdapter(reviews));
+    mReviewList.setAdapter(new ReviewListAdapter(mReviews));
     mReviewList.setLayoutManager(layoutManager);
   }
 
-  private void bindTrailers(ListResponse<Trailer> trailerList) {
-    final List<Trailer> trailers = trailerList.getResults();
-    if (trailers.size() == 0) {
+  private void bindTrailers(List<Trailer> trailerList) {
+    mTrailers = trailerList;
+    if (mTrailers.size() == 0) {
       return;
     }
 
@@ -138,39 +163,38 @@ public class MovieDetailsFragment extends Fragment {
 
     final RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
     layoutManager.setAutoMeasureEnabled(true);
-    mTrailerList.setAdapter(new TrailerListAdapter(trailers));
+    mTrailerList.setAdapter(new TrailerListAdapter(mTrailers));
     mTrailerList.setLayoutManager(layoutManager);
   }
 
   private void bindDetails(Movie movie) {
-    mTitleTextView.setText(movie.getOriginalTitle());
-    mReleaseDateTextView.setText(movie.getReleaseDate());
-    mRuntimeTextView.setText(getString(R.string.runtime, movie.getRuntime()));
-    mVoteTextView.setText(getString(R.string.vote_average, movie.getVoteAverage()));
-    mOverviewTextView.setText(movie.getOverview());
+    mMovie = movie;
+    mTitleTextView.setText(mMovie.getOriginalTitle());
+    mReleaseDateTextView.setText(mMovie.getReleaseDate());
+    mRuntimeTextView.setText(getString(R.string.runtime, mMovie.getRuntime()));
+    mVoteTextView.setText(getString(R.string.vote_average, mMovie.getVoteAverage()));
+    mOverviewTextView.setText(mMovie.getOverview());
 
     mProgressBar.setVisibility(View.GONE);
     mDetailsContainer.setVisibility(View.VISIBLE);
 
     Picasso
         .with(getActivity())
-        .load(movie.getPosterPath())
+        .load(mMovie.getPosterPath())
         .placeholder(R.drawable.poster_placeholder)
         .into(mPosterImageView);
 
     mMovieDb
-        .isFavorite(movie.getId())
-        .subscribe(isFavorite -> bindFavoriteButton(movie, isFavorite));
+        .isFavorite(mMovie.getId())
+        .subscribe(isFavorite -> bindFavoriteButton(mMovie, isFavorite));
   }
 
   private void bindFavoriteButton(Movie movie, boolean isFavorite) {
-    final View.OnClickListener addToFavorites = view -> {
-      mMovieDb.saveMovie(movie).subscribe(v -> bindFavoriteButton(movie, true));
-    };
+    final View.OnClickListener addToFavorites = view ->
+        mMovieDb.saveMovie(movie).subscribe(v -> bindFavoriteButton(movie, true));
 
-    final View.OnClickListener removeFromFavorites = view -> {
-      mMovieDb.deleteMovie(movie).subscribe(v -> bindFavoriteButton(movie, false));
-    };
+    final View.OnClickListener removeFromFavorites = view ->
+        mMovieDb.deleteMovie(movie).subscribe(v -> bindFavoriteButton(movie, false));
 
     final String buttonText = isFavorite ?
         getContext().getString(R.string.remove_from_favorites) :
