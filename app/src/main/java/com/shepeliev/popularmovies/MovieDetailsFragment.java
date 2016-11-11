@@ -83,33 +83,25 @@ public class MovieDetailsFragment extends Fragment {
       return rootView;
     }
 
-    sMovieDb.getMovieDetails(movieId, new ErrorHandledAsyncCallback<MovieDetails>(getContext()) {
-      @Override
-      public void onData(MovieDetails data) {
-        bindDetails(data);
-      }
-    });
-
-    sMovieDb.getTrailers(movieId,
-        new ErrorHandledAsyncCallback<ListResponse<Trailer>>(getContext()) {
-          @Override
-          public void onData(ListResponse<Trailer> data) {
-            bindTrailers(data.getResults());
-          }
-        });
-
-    sMovieDb.getReviews(movieId, new ErrorHandledAsyncCallback<ListResponse<Review>>(getContext()) {
-      @Override
-      public void onData(ListResponse<Review> data) {
-        bindReviews(data.getResults());
-      }
-    });
+    sMovieDb.getMovieDetails(movieId).subscribe(
+        this::bindDetails,
+        throwable -> ErrorActions.networkError(getContext(), throwable)
+    );
+    sMovieDb.getTrailers(movieId).subscribe(
+        this::bindTrailers,
+        throwable -> ErrorActions.networkError(getContext(), throwable)
+    );
+    sMovieDb.getReviews(movieId).subscribe(
+        this::bindReviews,
+        throwable -> ErrorActions.networkError(getContext(), throwable)
+    );
 
     return rootView;
   }
 
-  private void bindReviews(List<Review> results) {
-    if (results.size() == 0) {
+  private void bindReviews(ListResponse<Review> reviewList) {
+    final List<Review> reviews = reviewList.getResults();
+    if (reviews.size() == 0) {
       return;
     }
 
@@ -117,12 +109,13 @@ public class MovieDetailsFragment extends Fragment {
 
     final RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
     layoutManager.setAutoMeasureEnabled(true);
-    mReviewList.setAdapter(new ReviewListAdapter(results));
+    mReviewList.setAdapter(new ReviewListAdapter(reviews));
     mReviewList.setLayoutManager(layoutManager);
   }
 
-  private void bindTrailers(List<Trailer> results) {
-    if (results.size() == 0) {
+  private void bindTrailers(ListResponse<Trailer> trailerList) {
+    final List<Trailer> trailers = trailerList.getResults();
+    if (trailers.size() == 0) {
       return;
     }
 
@@ -130,7 +123,7 @@ public class MovieDetailsFragment extends Fragment {
 
     final RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
     layoutManager.setAutoMeasureEnabled(true);
-    mTrailerList.setAdapter(new TrailerListAdapter(results));
+    mTrailerList.setAdapter(new TrailerListAdapter(trailers));
     mTrailerList.setLayoutManager(layoutManager);
   }
 
@@ -156,7 +149,7 @@ public class MovieDetailsFragment extends Fragment {
     @BindView(R.id.trailer_name_text_view)
     TextView mTrailerName;
 
-    public TrailerViewHolder(View itemView) {
+    TrailerViewHolder(View itemView) {
       super(itemView);
       ButterKnife.bind(this, itemView);
     }
@@ -170,7 +163,7 @@ public class MovieDetailsFragment extends Fragment {
     @BindView(R.id.review_content_text_view)
     TextView mContentTextView;
 
-    public ReviewViewHolder(View itemView) {
+    ReviewViewHolder(View itemView) {
       super(itemView);
       ButterKnife.bind(this, itemView);
     }

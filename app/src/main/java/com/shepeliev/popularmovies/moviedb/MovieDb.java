@@ -2,11 +2,12 @@ package com.shepeliev.popularmovies.moviedb;
 
 import com.shepeliev.popularmovies.BuildConfig;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public final class MovieDb {
 
@@ -17,6 +18,7 @@ public final class MovieDb {
 
   private MovieDb() {
     Retrofit retrofit = new Retrofit.Builder()
+        .addCallAdapterFactory(RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io()))
         .addConverterFactory(GsonConverterFactory.create())
         .baseUrl(BASE_URL)
         .build();
@@ -28,58 +30,38 @@ public final class MovieDb {
     return sInstance;
   }
 
-  public void getMovies(Sort sort, AsyncCallback<ListResponse<MovieListItem>> asyncCallback) {
-    final Call<ListResponse<MovieListItem>> call;
+  public Observable<ListResponse<MovieListItem>> getMovies(Sort sort) {
     switch (sort) {
       case TOP_RATED:
-        call = mMovieDbApi.getTopRated(BuildConfig.MOVIE_DB_API_KEY);
-        break;
+        return mMovieDbApi
+            .getTopRatedObservable(BuildConfig.MOVIE_DB_API_KEY)
+            .observeOn(AndroidSchedulers.mainThread());
       case POPULAR:
-        call = mMovieDbApi.getPopular(BuildConfig.MOVIE_DB_API_KEY);
-        break;
+        return mMovieDbApi
+            .getPopularObservable(BuildConfig.MOVIE_DB_API_KEY)
+            .observeOn(AndroidSchedulers.mainThread());
       default:
         throw new IllegalStateException();
     }
-
-    enqueueCall(call, asyncCallback);
   }
 
-  public void getMovieDetails(int id, AsyncCallback<MovieDetails> asyncCallback) {
-    enqueueCall(mMovieDbApi.getDetails(id, BuildConfig.MOVIE_DB_API_KEY), asyncCallback);
+  public Observable<MovieDetails> getMovieDetails(int id) {
+    return mMovieDbApi
+        .getDetailsObservable(id, BuildConfig.MOVIE_DB_API_KEY)
+        .observeOn(AndroidSchedulers.mainThread());
   }
 
-  public void getTrailers(int id, AsyncCallback<ListResponse<Trailer>> asyncCallback) {
-    enqueueCall(mMovieDbApi.getTrailers(id, BuildConfig.MOVIE_DB_API_KEY), asyncCallback);
+  public Observable<ListResponse<Trailer>> getTrailers(int id) {
+    return mMovieDbApi
+        .getTrailersObservable(id, BuildConfig.MOVIE_DB_API_KEY)
+        .observeOn(AndroidSchedulers.mainThread());
   }
 
-  public void getReviews(int id, AsyncCallback<ListResponse<Review>> asyncCallback) {
-    enqueueCall(mMovieDbApi.getReviews(id, BuildConfig.MOVIE_DB_API_KEY), asyncCallback);
-  }
-
-  private <T> void enqueueCall(Call<T> call, final AsyncCallback<T> asyncCallback) {
-    call.enqueue(new Callback<T>() {
-      @Override
-      public void onResponse(Call<T> call, Response<T> response) {
-        if (response.isSuccessful()) {
-          asyncCallback.onData(response.body());
-        } else {
-          asyncCallback.onError(response.message());
-        }
-      }
-
-      @Override
-      public void onFailure(Call<T> call, Throwable t) {
-        asyncCallback.onError(t.getMessage());
-      }
-    });
+  public Observable<ListResponse<Review>> getReviews(int id) {
+    return mMovieDbApi
+        .getReviewsObservable(id, BuildConfig.MOVIE_DB_API_KEY)
+        .observeOn(AndroidSchedulers.mainThread());
   }
 
   public enum Sort {TOP_RATED, POPULAR}
-
-  public interface AsyncCallback<T> {
-
-    void onData(T data);
-
-    void onError(String error);
-  }
 }
