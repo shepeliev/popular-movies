@@ -3,6 +3,7 @@ package com.shepeliev.popularmovies;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -17,9 +19,9 @@ import android.widget.TextView;
 
 import com.shepeliev.popularmovies.data.model.ListResponse;
 import com.shepeliev.popularmovies.data.model.Movie;
-import com.shepeliev.popularmovies.moviedb.MovieDb;
 import com.shepeliev.popularmovies.data.model.Review;
 import com.shepeliev.popularmovies.data.model.Trailer;
+import com.shepeliev.popularmovies.moviedb.MovieDb;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -68,6 +70,17 @@ public class MovieDetailsFragment extends Fragment {
   @BindView(R.id.review_list)
   RecyclerView mReviewList;
 
+  @BindView(R.id.favorite_button)
+  Button mFavoriteButton;
+
+  private MovieDb mMovieDb;
+
+  @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    mMovieDb = MovieDb.getInstance(getContext());
+  }
+
   @Override
   public View onCreateView(LayoutInflater inflater,
                            ViewGroup container,
@@ -82,17 +95,15 @@ public class MovieDetailsFragment extends Fragment {
       return rootView;
     }
 
-    final MovieDb movieDb = MovieDb.getInstance(getContext());
-
-    movieDb.getMovieDetails(movieId).subscribe(
+    mMovieDb.getMovieDetails(movieId).subscribe(
         this::bindDetails,
         throwable -> ErrorActions.networkError(getContext(), throwable)
     );
-    movieDb.getTrailers(movieId).subscribe(
+    mMovieDb.getTrailers(movieId).subscribe(
         this::bindTrailers,
         throwable -> ErrorActions.networkError(getContext(), throwable)
     );
-    movieDb.getReviews(movieId).subscribe(
+    mMovieDb.getReviews(movieId).subscribe(
         this::bindReviews,
         throwable -> ErrorActions.networkError(getContext(), throwable)
     );
@@ -143,6 +154,26 @@ public class MovieDetailsFragment extends Fragment {
         .load(movie.getPosterPath())
         .placeholder(R.drawable.poster_placeholder)
         .into(mPosterImageView);
+
+    mMovieDb
+        .isFavorite(movie.getId())
+        .subscribe(isFavorite -> bindFavoriteButton(movie, isFavorite));
+  }
+
+  private void bindFavoriteButton(Movie movie, boolean isFavorite) {
+    final View.OnClickListener addToFavorites = view -> {
+      mMovieDb.saveMovie(movie).subscribe(v -> bindFavoriteButton(movie, true));
+    };
+
+    final View.OnClickListener removeFromFavorites = view -> {
+      mMovieDb.deleteMovie(movie).subscribe(v -> bindFavoriteButton(movie, false));
+    };
+
+    final String buttonText = isFavorite ?
+        getContext().getString(R.string.remove_from_favorites) :
+        getContext().getString(R.string.add_to_favorites);
+    mFavoriteButton.setText(buttonText);
+    mFavoriteButton.setOnClickListener(isFavorite ? removeFromFavorites : addToFavorites);
   }
 
   class TrailerViewHolder extends RecyclerView.ViewHolder {

@@ -1,6 +1,7 @@
 package com.shepeliev.popularmovies.moviedb;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.pushtorefresh.storio.sqlite.SQLiteTypeMapping;
 import com.pushtorefresh.storio.sqlite.StorIOSQLite;
@@ -11,9 +12,9 @@ import com.shepeliev.popularmovies.data.DatabaseOpenHelper;
 import com.shepeliev.popularmovies.data.MoviesEntry;
 import com.shepeliev.popularmovies.data.model.ListResponse;
 import com.shepeliev.popularmovies.data.model.Movie;
-import com.shepeliev.popularmovies.data.model.MovieDetailsStorIOSQLiteDeleteResolver;
-import com.shepeliev.popularmovies.data.model.MovieDetailsStorIOSQLiteGetResolver;
-import com.shepeliev.popularmovies.data.model.MovieDetailsStorIOSQLitePutResolver;
+import com.shepeliev.popularmovies.data.model.MovieStorIOSQLiteDeleteResolver;
+import com.shepeliev.popularmovies.data.model.MovieStorIOSQLiteGetResolver;
+import com.shepeliev.popularmovies.data.model.MovieStorIOSQLitePutResolver;
 import com.shepeliev.popularmovies.data.model.Review;
 import com.shepeliev.popularmovies.data.model.Trailer;
 
@@ -29,6 +30,7 @@ import rx.schedulers.Schedulers;
 
 public final class MovieDb {
 
+  private static final String LOG_TAG = MovieDb.class.getSimpleName();
   private static final String IMAGE_BASE_URL = "http://image.tmdb.org/t/p/w185";
   private static final String BASE_URL = "https://api.themoviedb.org/3/";
   private static MovieDb sInstance;
@@ -48,9 +50,9 @@ public final class MovieDb {
         .sqliteOpenHelper(new DatabaseOpenHelper(context))
         .defaultScheduler(Schedulers.io())
         .addTypeMapping(Movie.class, SQLiteTypeMapping.<Movie>builder()
-            .putResolver(new MovieDetailsStorIOSQLitePutResolver())
-            .getResolver(new MovieDetailsStorIOSQLiteGetResolver())
-            .deleteResolver(new MovieDetailsStorIOSQLiteDeleteResolver())
+            .putResolver(new MovieStorIOSQLitePutResolver())
+            .getResolver(new MovieStorIOSQLiteGetResolver())
+            .deleteResolver(new MovieStorIOSQLiteDeleteResolver())
             .build())
         .build();
   }
@@ -108,8 +110,11 @@ public final class MovieDb {
         .asRxSingle()
         .flatMap(movieFromDb -> {
           if (movieFromDb != null) {
+            Log.i(LOG_TAG, "Got movie from DB.");
             return Single.just(movieFromDb);
           }
+
+          Log.i(LOG_TAG, "No movie in DB. Fallback to TheMovieDb.org");
 
           return mMovieDbApi
               .getDetailsObservable(id, BuildConfig.MOVIE_DB_API_KEY)
@@ -128,6 +133,41 @@ public final class MovieDb {
   public Observable<ListResponse<Review>> getReviews(int id) {
     return mMovieDbApi
         .getReviewsObservable(id, BuildConfig.MOVIE_DB_API_KEY)
+        .observeOn(AndroidSchedulers.mainThread());
+  }
+
+  public Single<Boolean> isFavorite(int id) {
+    return mStorIOSQLite.get()
+        .object(Movie.class)
+        .withQuery(
+            Query.builder()
+                .table(MoviesEntry.TABLE)
+                .where(MoviesEntry.Columns._ID + "=?")
+                .whereArgs(id)
+                .build())
+        .prepare()
+        .asRxSingle()
+        .map(movie -> movie != null)
+        .observeOn(AndroidSchedulers.mainThread());
+  }
+
+  public Single<Void> saveMovie(Movie movie) {
+    return mStorIOSQLite.put()
+        .object(movie)
+        .prepare()
+        .asRxSingle()
+        .doOnError(throwable -> Log.e(LOG_TAG, "Saving " + movie + " failed", throwable))
+        .map(putResult -> (Void) null)
+        .observeOn(AndroidSchedulers.mainThread());
+  }
+
+  public Single<Void> deleteMovie(Movie movie) {
+    return mStorIOSQLite.delete()
+        .object(movie)
+        .prepare()
+        .asRxSingle()
+        .doOnError(throwable -> Log.e(LOG_TAG, "Deleting " + movie + " failed", throwable))
+        .map(deleteResult -> (Void) null)
         .observeOn(AndroidSchedulers.mainThread());
   }
 
