@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +33,8 @@ import butterknife.ButterKnife;
 public class MovieDetailsFragment extends Fragment {
 
   public static final String EXTRA_MOVIE_ID = "movie_id";
+
+  private static final String LOG_TAG = MovieDetailsFragment.class.getSimpleName();
   private static final String YOUTUBE_URL = "https://www.youtube.com/watch?v=";
 
   @BindView(R.id.progress_bar)
@@ -101,11 +104,11 @@ public class MovieDetailsFragment extends Fragment {
     );
     mMovieDb.getTrailers(movieId).subscribe(
         this::bindTrailers,
-        throwable -> ErrorActions.networkError(getContext(), throwable)
+        throwable -> Log.e(LOG_TAG, "Network error", throwable)
     );
     mMovieDb.getReviews(movieId).subscribe(
         this::bindReviews,
-        throwable -> ErrorActions.networkError(getContext(), throwable)
+        throwable -> Log.e(LOG_TAG, "Network error", throwable)
     );
 
     return rootView;
