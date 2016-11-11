@@ -1,43 +1,63 @@
-package com.shepeliev.popularmovies.moviedb;
+package com.shepeliev.popularmovies.data.model;
 
 import com.google.gson.annotations.SerializedName;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public final class MovieDetails implements Parcelable {
+import com.pushtorefresh.storio.sqlite.annotations.StorIOSQLiteColumn;
+import com.pushtorefresh.storio.sqlite.annotations.StorIOSQLiteType;
+import com.shepeliev.popularmovies.data.MoviesEntry;
 
-  public static final Creator<MovieDetails> CREATOR = new Creator<MovieDetails>() {
+@StorIOSQLiteType(table = MoviesEntry.TABLE)
+public final class Movie implements Parcelable {
+
+  public static final Creator<Movie> CREATOR = new Creator<Movie>() {
     @Override
-    public MovieDetails createFromParcel(Parcel in) {
-      return new MovieDetails(in);
+    public Movie createFromParcel(Parcel in) {
+      return new Movie(in);
     }
 
     @Override
-    public MovieDetails[] newArray(int size) {
-      return new MovieDetails[size];
+    public Movie[] newArray(int size) {
+      return new Movie[size];
     }
   };
 
+  @SerializedName("id")
+  @StorIOSQLiteColumn(name = MoviesEntry.Columns._ID, key = true)
+  int mId;
+
   @SerializedName("original_title")
-  private String mOriginalTitle;
+  @StorIOSQLiteColumn(name = MoviesEntry.Columns.ORIGINAL_TITLE)
+  String mOriginalTitle;
 
   @SerializedName("poster_path")
-  private String mPosterPath;
+  @StorIOSQLiteColumn(name = MoviesEntry.Columns.POSTER_PATH)
+  String mPosterPath;
 
   @SerializedName("overview")
-  private String mOverview;
+  @StorIOSQLiteColumn(name = MoviesEntry.Columns.OVERVIEW)
+  String mOverview;
 
   @SerializedName("release_date")
-  private String mReleaseDate;
+  @StorIOSQLiteColumn(name = MoviesEntry.Columns.RELEASE_DATE)
+  String mReleaseDate;
 
   @SerializedName("vote_average")
-  private double mVoteAverage;
+  @StorIOSQLiteColumn(name = MoviesEntry.Columns.VOTE_AVERAGE)
+  double mVoteAverage;
 
   @SerializedName("runtime")
-  private int mRuntime;
+  @StorIOSQLiteColumn(name = MoviesEntry.Columns.RUNTIME)
+  int mRuntime;
 
-  private MovieDetails(Parcel in) {
+  Movie() {
+    // default constructor for stor IO type mapper
+  }
+
+  private Movie(Parcel in) {
+    mId = in.readInt();
     mOriginalTitle = in.readString();
     mPosterPath = in.readString();
     mOverview = in.readString();
@@ -53,6 +73,7 @@ public final class MovieDetails implements Parcelable {
 
   @Override
   public void writeToParcel(Parcel dest, int flags) {
+    dest.writeInt(mId);
     dest.writeString(mOriginalTitle);
     dest.writeString(mPosterPath);
     dest.writeString(mOverview);
@@ -61,12 +82,21 @@ public final class MovieDetails implements Parcelable {
     dest.writeInt(mRuntime);
   }
 
+  public int getId() {
+    return mId;
+  }
+
   public String getOriginalTitle() {
     return mOriginalTitle;
   }
 
   public String getPosterPath() {
     return mPosterPath;
+  }
+
+  public Movie setPosterPath(String posterPath) {
+    mPosterPath = posterPath;
+    return this;
   }
 
   public String getOverview() {
@@ -90,19 +120,18 @@ public final class MovieDetails implements Parcelable {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    MovieDetails that = (MovieDetails) o;
+    Movie that = (Movie) o;
 
+    if (mId != that.mId) return false;
     if (Double.compare(that.mVoteAverage, mVoteAverage) != 0) return false;
     if (mRuntime != that.mRuntime) return false;
-    if (mOriginalTitle != null ?
-        !mOriginalTitle.equals(that.mOriginalTitle) : that.mOriginalTitle != null)
+    if (mOriginalTitle != null ? !mOriginalTitle.equals(that.mOriginalTitle) : that.mOriginalTitle != null)
       return false;
     if (mPosterPath != null ? !mPosterPath.equals(that.mPosterPath) : that.mPosterPath != null)
       return false;
     if (mOverview != null ? !mOverview.equals(that.mOverview) : that.mOverview != null)
       return false;
-    return mReleaseDate != null ?
-        mReleaseDate.equals(that.mReleaseDate) : that.mReleaseDate == null;
+    return mReleaseDate != null ? mReleaseDate.equals(that.mReleaseDate) : that.mReleaseDate == null;
 
   }
 
@@ -110,7 +139,8 @@ public final class MovieDetails implements Parcelable {
   public int hashCode() {
     int result;
     long temp;
-    result = mOriginalTitle != null ? mOriginalTitle.hashCode() : 0;
+    result = mId;
+    result = 31 * result + (mOriginalTitle != null ? mOriginalTitle.hashCode() : 0);
     result = 31 * result + (mPosterPath != null ? mPosterPath.hashCode() : 0);
     result = 31 * result + (mOverview != null ? mOverview.hashCode() : 0);
     result = 31 * result + (mReleaseDate != null ? mReleaseDate.hashCode() : 0);
@@ -123,7 +153,8 @@ public final class MovieDetails implements Parcelable {
   @Override
   public String toString() {
     final StringBuffer sb = new StringBuffer("MovieDetails{");
-    sb.append("mOriginalTitle='").append(mOriginalTitle).append('\'');
+    sb.append("mId=").append(mId);
+    sb.append(", mOriginalTitle='").append(mOriginalTitle).append('\'');
     sb.append(", mPosterPath='").append(mPosterPath).append('\'');
     sb.append(", mOverview='").append(mOverview).append('\'');
     sb.append(", mReleaseDate='").append(mReleaseDate).append('\'');

@@ -15,11 +15,11 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.shepeliev.popularmovies.moviedb.ListResponse;
+import com.shepeliev.popularmovies.data.model.ListResponse;
+import com.shepeliev.popularmovies.data.model.Movie;
 import com.shepeliev.popularmovies.moviedb.MovieDb;
-import com.shepeliev.popularmovies.moviedb.MovieDetails;
-import com.shepeliev.popularmovies.moviedb.Review;
-import com.shepeliev.popularmovies.moviedb.Trailer;
+import com.shepeliev.popularmovies.data.model.Review;
+import com.shepeliev.popularmovies.data.model.Trailer;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -30,7 +30,6 @@ import butterknife.ButterKnife;
 public class MovieDetailsFragment extends Fragment {
 
   public static final String EXTRA_MOVIE_ID = "movie_id";
-  private static final MovieDb sMovieDb = MovieDb.getInstance();
   private static final String YOUTUBE_URL = "https://www.youtube.com/watch?v=";
 
   @BindView(R.id.progress_bar)
@@ -83,15 +82,17 @@ public class MovieDetailsFragment extends Fragment {
       return rootView;
     }
 
-    sMovieDb.getMovieDetails(movieId).subscribe(
+    final MovieDb movieDb = MovieDb.getInstance(getContext());
+
+    movieDb.getMovieDetails(movieId).subscribe(
         this::bindDetails,
         throwable -> ErrorActions.networkError(getContext(), throwable)
     );
-    sMovieDb.getTrailers(movieId).subscribe(
+    movieDb.getTrailers(movieId).subscribe(
         this::bindTrailers,
         throwable -> ErrorActions.networkError(getContext(), throwable)
     );
-    sMovieDb.getReviews(movieId).subscribe(
+    movieDb.getReviews(movieId).subscribe(
         this::bindReviews,
         throwable -> ErrorActions.networkError(getContext(), throwable)
     );
@@ -127,19 +128,19 @@ public class MovieDetailsFragment extends Fragment {
     mTrailerList.setLayoutManager(layoutManager);
   }
 
-  private void bindDetails(MovieDetails movieDetails) {
-    mTitleTextView.setText(movieDetails.getOriginalTitle());
-    mReleaseDateTextView.setText(movieDetails.getReleaseDate());
-    mRuntimeTextView.setText(getString(R.string.runtime, movieDetails.getRuntime()));
-    mVoteTextView.setText(getString(R.string.vote_average, movieDetails.getVoteAverage()));
-    mOverviewTextView.setText(movieDetails.getOverview());
+  private void bindDetails(Movie movie) {
+    mTitleTextView.setText(movie.getOriginalTitle());
+    mReleaseDateTextView.setText(movie.getReleaseDate());
+    mRuntimeTextView.setText(getString(R.string.runtime, movie.getRuntime()));
+    mVoteTextView.setText(getString(R.string.vote_average, movie.getVoteAverage()));
+    mOverviewTextView.setText(movie.getOverview());
 
     mProgressBar.setVisibility(View.GONE);
     mDetailsContainer.setVisibility(View.VISIBLE);
 
     Picasso
         .with(getActivity())
-        .load(MovieDb.IMAGE_BASE_URL + movieDetails.getPosterPath())
+        .load(movie.getPosterPath())
         .placeholder(R.drawable.poster_placeholder)
         .into(mPosterImageView);
   }

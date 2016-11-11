@@ -1,4 +1,4 @@
-package com.shepeliev.popularmovies.moviedb;
+package com.shepeliev.popularmovies.data.model;
 
 import com.google.gson.annotations.SerializedName;
 

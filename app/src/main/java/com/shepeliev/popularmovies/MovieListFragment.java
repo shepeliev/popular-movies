@@ -13,8 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.shepeliev.popularmovies.data.model.Movie;
 import com.shepeliev.popularmovies.moviedb.MovieDb;
-import com.shepeliev.popularmovies.moviedb.MovieListItem;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -30,7 +30,7 @@ public class MovieListFragment extends Fragment {
   RecyclerView mMoviesRecyclerView;
 
   private MovieListFragmentListener mMovieListFragmentListener;
-  private List<MovieListItem> mMovies;
+  private List<Movie> mMovies;
 
   @Nullable
   @Override
@@ -55,12 +55,12 @@ public class MovieListFragment extends Fragment {
         getString(R.string.pref_top_rated_value));
     MovieDb.Sort sort = MovieDb.Sort.valueOf(sortStr);
 
-    MovieDb.getInstance()
+    MovieDb.getInstance(getContext())
         .getMovies(sort)
         .subscribe(
 
             movieList -> {
-              mMovies = movieList.getResults();
+              mMovies = movieList;
               mMovieListAdapter.notifyDataSetChanged();
             },
 
@@ -93,7 +93,7 @@ public class MovieListFragment extends Fragment {
 
   public interface MovieListFragmentListener {
 
-    void onMovieClick(MovieListItem movieListItem);
+    void onMovieClick(Movie movieListItem);
   }
 
   class MovieListAdapter extends RecyclerView.Adapter<ViewHolder> {
@@ -108,17 +108,17 @@ public class MovieListFragment extends Fragment {
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-      final MovieListItem movieListItem = mMovies.get(position);
+      final Movie movie = mMovies.get(position);
 
       holder.itemView.setOnClickListener(v -> {
         if (mMovieListFragmentListener != null) {
-          mMovieListFragmentListener.onMovieClick(movieListItem);
+          mMovieListFragmentListener.onMovieClick(movie);
         }
       });
 
       Picasso
           .with(holder.itemView.getContext())
-          .load(MovieDb.IMAGE_BASE_URL + movieListItem.getPosterPath())
+          .load(movie.getPosterPath())
           .placeholder(R.drawable.poster_placeholder)
           .into((ImageView) holder.itemView);
     }
