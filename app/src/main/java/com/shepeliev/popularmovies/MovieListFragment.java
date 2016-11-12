@@ -26,7 +26,6 @@ import butterknife.ButterKnife;
 
 public class MovieListFragment extends Fragment {
 
-  private static final String LOG_TAG = MovieListFragment.class.getSimpleName();
   private static final String MOVIES_RECYCLER_VIEW_STATE = "moviesRecyclerViewState";
   private static final String MOVIE_LIST_STATE = "moviesListState";
   private final MovieListAdapter mMovieListAdapter = new MovieListAdapter();
@@ -50,9 +49,7 @@ public class MovieListFragment extends Fragment {
     mMoviesRecyclerView.setLayoutManager(layoutManager);
     mMoviesRecyclerView.setHasFixedSize(true);
 
-    if (savedInstanceState == null) {
-      loadMovies();
-    } else {
+    if (savedInstanceState != null) {
       mMovies = savedInstanceState.getParcelableArrayList(MOVIE_LIST_STATE);
       layoutManager
           .onRestoreInstanceState(savedInstanceState.getParcelable(MOVIES_RECYCLER_VIEW_STATE));
@@ -65,8 +62,10 @@ public class MovieListFragment extends Fragment {
   public void onSaveInstanceState(Bundle outState) {
     Parcelable moviesRecyclerViewState =
         mMoviesRecyclerView.getLayoutManager().onSaveInstanceState();
-    outState.putParcelableArrayList(MOVIE_LIST_STATE, new ArrayList<>(mMovies));
     outState.putParcelable(MOVIES_RECYCLER_VIEW_STATE, moviesRecyclerViewState);
+    if (mMovies != null) {
+      outState.putParcelableArrayList(MOVIE_LIST_STATE, new ArrayList<>(mMovies));
+    }
   }
 
 
@@ -83,6 +82,7 @@ public class MovieListFragment extends Fragment {
             movieList -> {
               mMovies = movieList;
               mMovieListAdapter.notifyDataSetChanged();
+              mMovieListFragmentListener.onMoviesLoaded(mMovies);
             },
 
             throwable -> ErrorActions.networkError(getContext(), throwable)
@@ -92,7 +92,15 @@ public class MovieListFragment extends Fragment {
   @Override
   public void onResume() {
     super.onResume();
-    loadMovies();
+    if (mMovies == null) {
+      loadMovies();
+    }
+  }
+
+  @Override
+  public void onStop() {
+    mMovies = null;
+    super.onStop();
   }
 
   @Override
@@ -114,7 +122,10 @@ public class MovieListFragment extends Fragment {
 
   public interface MovieListFragmentListener {
 
-    void onMovieClick(Movie movieListItem);
+    void onMoviesLoaded(List<Movie> movies);
+
+    void onMovieClick(Movie movie);
+
   }
 
   class MovieListAdapter extends RecyclerView.Adapter<ViewHolder> {

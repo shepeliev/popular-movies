@@ -29,13 +29,13 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import rx.Subscription;
 
 public class MovieDetailsFragment extends Fragment {
 
-  public static final String EXTRA_MOVIE_ID = "movie_id";
-
   private static final String LOG_TAG = MovieDetailsFragment.class.getSimpleName();
   private static final String YOUTUBE_URL = "https://www.youtube.com/watch?v=";
+  private static final String MOVIE_ID = "movieId";
   private static final String MOVIE_STATE = "movie";
   private static final String TRAILERS_STATE = "trailers";
   private static final String REVIEWS_STATE = "reviews";
@@ -84,6 +84,18 @@ public class MovieDetailsFragment extends Fragment {
   private List<Trailer> mTrailers;
   private List<Review> mReviews;
 
+  private Subscription mMovieSubscription;
+  private Subscription mTrailersSubscription;
+  private Subscription mReviewSubscription;
+
+  public static MovieDetailsFragment getInstance(int movieId) {
+    final MovieDetailsFragment fragment = new MovieDetailsFragment();
+    final Bundle args = new Bundle();
+    args.putInt(MOVIE_ID, movieId);
+    fragment.setArguments(args);
+    return fragment;
+  }
+
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -100,7 +112,7 @@ public class MovieDetailsFragment extends Fragment {
     if (savedInstanceState != null) {
       restoreInstanceState(savedInstanceState);
     } else {
-      bindViewsFromIntent(getActivity().getIntent());
+      bindViews(getArguments().getInt(MOVIE_ID));
     }
 
     return rootView;
@@ -108,38 +120,63 @@ public class MovieDetailsFragment extends Fragment {
 
   @Override
   public void onSaveInstanceState(Bundle outState) {
-    outState.putParcelable(MOVIE_STATE, mMovie);
-    outState.putParcelableArrayList(TRAILERS_STATE, new ArrayList<>(mTrailers));
-    outState.putParcelableArrayList(REVIEWS_STATE, new ArrayList<>(mReviews));
+    if (mMovie != null) {
+      outState.putParcelable(MOVIE_STATE, mMovie);
+    }
+    if (mTrailers != null) {
+      outState.putParcelableArrayList(TRAILERS_STATE, new ArrayList<>(mTrailers));
+    }
+    if (mReviews != null) {
+      outState.putParcelableArrayList(REVIEWS_STATE, new ArrayList<>(mReviews));
+    }
+  }
+
+  @Override
+  public void onDestroyView() {
+    if (mMovieSubscription != null) {
+      mMovieSubscription.unsubscribe();
+    }
+    if (mTrailersSubscription != null) {
+      mTrailersSubscription.unsubscribe();
+    }
+    if (mReviewSubscription != null) {
+      mReviewSubscription.unsubscribe();
+    }
+    super.onDestroyView();
   }
 
   private void restoreInstanceState(Bundle savedInstanceState) {
-    bindDetails(savedInstanceState.getParcelable(MOVIE_STATE));
-    bindTrailers(savedInstanceState.getParcelableArrayList(TRAILERS_STATE));
-    bindReviews(savedInstanceState.getParcelableArrayList(REVIEWS_STATE));
+    if (!isDetached()) {
+      bindDetails(savedInstanceState.getParcelable(MOVIE_STATE));
+      bindTrailers(savedInstanceState.getParcelableArrayList(TRAILERS_STATE));
+      bindReviews(savedInstanceState.getParcelableArrayList(REVIEWS_STATE));
+    }
   }
 
-  private void bindViewsFromIntent(Intent intent) {
-    final int movieId = intent.getIntExtra(EXTRA_MOVIE_ID, -1);
-    if (movieId <= -1) {
+  private void bindViews(int movieId) {
+    if (movieId < 0) {
       return;
     }
 
-    mMovieDb.getMovieDetails(movieId).subscribe(
+    mMovieSubscription = mMovieDb.getMovieDetails(movieId).subscribe(
         this::bindDetails,
         throwable -> ErrorActions.networkError(getContext(), throwable)
     );
-    mMovieDb.getTrailers(movieId).subscribe(
+    mTrailersSubscription = mMovieDb.getTrailers(movieId).subscribe(
         this::bindTrailers,
         throwable -> Log.e(LOG_TAG, "Network error", throwable)
     );
-    mMovieDb.getReviews(movieId).subscribe(
+    mReviewSubscription = mMovieDb.getReviews(movieId).subscribe(
         this::bindReviews,
         throwable -> Log.e(LOG_TAG, "Network error", throwable)
     );
   }
 
   private void bindReviews(List<Review> reviewList) {
+    if (reviewList == null) {
+      return;
+    }
+
     mReviews = reviewList;
     if (mReviews.size() == 0) {
       return;
@@ -154,6 +191,10 @@ public class MovieDetailsFragment extends Fragment {
   }
 
   private void bindTrailers(List<Trailer> trailerList) {
+    if (trailerList == null) {
+      return;
+    }
+
     mTrailers = trailerList;
     if (mTrailers.size() == 0) {
       return;
@@ -168,6 +209,10 @@ public class MovieDetailsFragment extends Fragment {
   }
 
   private void bindDetails(Movie movie) {
+    if (movie == null) {
+      return;
+    }
+
     mMovie = movie;
     mTitleTextView.setText(mMovie.getOriginalTitle());
     mReleaseDateTextView.setText(mMovie.getReleaseDate());
