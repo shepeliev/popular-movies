@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity
 
       fragmentManager
           .beginTransaction()
-          .add(R.id.movie_details_fragment, MovieDetailsFragment.getInstance(movies.get(0).getId()))
+          .replace(R.id.movie_details_fragment, MovieDetailsFragment.getInstance(movies.get(0).getId()))
           .commit();
     }
   }
