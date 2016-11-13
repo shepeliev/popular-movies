@@ -5,11 +5,16 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -88,6 +93,9 @@ public class MovieDetailsFragment extends Fragment {
   private Subscription mTrailersSubscription;
   private Subscription mReviewSubscription;
 
+  private MenuItem mShareMenuItem;
+  private ShareActionProvider mShareActionProvider;
+
   public static MovieDetailsFragment getInstance(int movieId) {
     final MovieDetailsFragment fragment = new MovieDetailsFragment();
     final Bundle args = new Bundle();
@@ -99,6 +107,7 @@ public class MovieDetailsFragment extends Fragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    setHasOptionsMenu(true);
     mMovieDb = MovieDb.getInstance(getContext());
   }
 
@@ -145,9 +154,17 @@ public class MovieDetailsFragment extends Fragment {
     super.onDestroyView();
   }
 
+  @Override
+  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    inflater.inflate(R.menu.details_fragment_menu, menu);
+    mShareMenuItem = menu.findItem(R.id.action_share);
+    mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(mShareMenuItem);
+    bindShareAction();
+  }
+
   private void restoreInstanceState(Bundle savedInstanceState) {
     if (!isDetached()) {
-      bindDetails(savedInstanceState.getParcelable(MOVIE_STATE));
+      bindMovie(savedInstanceState.getParcelable(MOVIE_STATE));
       bindTrailers(savedInstanceState.getParcelableArrayList(TRAILERS_STATE));
       bindReviews(savedInstanceState.getParcelableArrayList(REVIEWS_STATE));
     }
@@ -159,7 +176,7 @@ public class MovieDetailsFragment extends Fragment {
     }
 
     mMovieSubscription = mMovieDb.getMovieDetails(movieId).subscribe(
-        this::bindDetails,
+        this::bindMovie,
         throwable -> ErrorActions.networkError(getContext(), throwable)
     );
     mTrailersSubscription = mMovieDb.getTrailers(movieId).subscribe(
@@ -191,6 +208,10 @@ public class MovieDetailsFragment extends Fragment {
   }
 
   private void bindTrailers(List<Trailer> trailerList) {
+    if (mShareMenuItem != null) {
+      mShareMenuItem.setVisible(false);
+    }
+
     if (trailerList == null) {
       return;
     }
@@ -206,9 +227,30 @@ public class MovieDetailsFragment extends Fragment {
     layoutManager.setAutoMeasureEnabled(true);
     mTrailerList.setAdapter(new TrailerListAdapter(mTrailers));
     mTrailerList.setLayoutManager(layoutManager);
+
+    bindShareAction();
   }
 
-  private void bindDetails(Movie movie) {
+  private void bindShareAction() {
+    if (mMovie == null ||
+        mTrailers == null ||
+        mShareMenuItem == null ||
+        mShareActionProvider == null ||
+        mTrailers.size() == 0) {
+      return;
+    }
+
+    final String shareText = getContext().getString(R.string.share_text, mMovie.getOriginalTitle(),
+        YOUTUBE_URL + mTrailers.get(0).getKey());
+    final Intent intent = new Intent();
+    intent.setAction(Intent.ACTION_SEND);
+    intent.putExtra(Intent.EXTRA_TEXT, shareText);
+    intent.setType("text/plain");
+    mShareActionProvider.setShareIntent(intent);
+    mShareMenuItem.setVisible(true);
+  }
+
+  private void bindMovie(Movie movie) {
     if (movie == null) {
       return;
     }
@@ -232,6 +274,8 @@ public class MovieDetailsFragment extends Fragment {
     mMovieDb
         .isFavorite(mMovie.getId())
         .subscribe(isFavorite -> bindFavoriteButton(mMovie, isFavorite));
+
+    bindShareAction();
   }
 
   private void bindFavoriteButton(Movie movie, boolean isFavorite) {
