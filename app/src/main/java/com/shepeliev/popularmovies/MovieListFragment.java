@@ -44,8 +44,9 @@ public class MovieListFragment extends Fragment {
     final View rootView = inflater.inflate(R.layout.fragment_list_movies, container, false);
     ButterKnife.bind(this, rootView);
 
+    final boolean twoPane = getResources().getBoolean(R.bool.two_pane);
+    final GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), twoPane ? 3 : 2);
     mMoviesRecyclerView.setAdapter(mMovieListAdapter);
-    final GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), 2);
     mMoviesRecyclerView.setLayoutManager(layoutManager);
     mMoviesRecyclerView.setHasFixedSize(true);
 
